@@ -1,0 +1,104 @@
+version: 1
+schema: SIG_VALIDACAO_ERROS
+
+common:
+  GEO_001:
+    theme: GEOMETRIA
+    severity: ALTA
+    description: Geometria nula ou vazia
+    suggested_fix: Rever entidade no cadastro e recriar geometria se necessário.
+    output_geometry: SOURCE
+  GEO_002:
+    theme: GEOMETRIA
+    severity: ALTA
+    description: Geometria inválida
+    suggested_fix: Corrigir geometria com ferramenta de validação/reparação antes de usar em modelação.
+    output_geometry: SOURCE
+  GEO_003:
+    theme: GEOMETRIA
+    severity: MEDIA
+    description: Linha com comprimento quase zero
+    suggested_fix: Confirmar se é erro de digitalização, duplicado ou entidade residual.
+    output_geometry: SOURCE
+  ATT_001:
+    theme: ATRIBUTOS
+    severity: ALTA
+    description: Identificador da entidade em falta
+    suggested_fix: Preencher IPID/identificador antes de exportar ou validar relações.
+    output_geometry: SOURCE
+  ATT_005:
+    theme: ATRIBUTOS
+    severity: ALTA
+    description: Diâmetro em falta em entidade linear
+    suggested_fix: Preencher diâmetro nominal em mm ou mapear correctamente o campo de origem.
+    output_geometry: SOURCE
+  META_ARRUAMENTO:
+    theme: METADADOS
+    severity: MEDIA
+    description: Arruamento em falta ou desconhecido
+    suggested_fix: Preencher arruamento ou validar herança espacial por eixo/toponímia.
+    output_geometry: SOURCE
+  META_FREG_2012:
+    theme: METADADOS
+    severity: BAIXA
+    description: Freguesia CAOP 2012 em falta
+    suggested_fix: Preencher por intersecção espacial com CAOP histórica se ainda for necessária.
+    output_geometry: SOURCE
+  META_FREG_2017:
+    theme: METADADOS
+    severity: BAIXA
+    description: Freguesia CAOP 2017 em falta
+    suggested_fix: Preencher por intersecção espacial com CAOP.
+    output_geometry: SOURCE
+  META_NUM_POL:
+    theme: METADADOS
+    severity: MEDIA
+    description: Número de polícia em falta ou desconhecido em ramal
+    suggested_fix: Confirmar ligação do ramal ao edifício/artigo e preencher número de polícia.
+    output_geometry: SOURCE
+  TOPO_001:
+    theme: TOPOLOGIA
+    severity: CRITICA
+    description: Extremidade de link sem nó associado dentro da tolerância
+    suggested_fix: Corrigir snap entre link e nó, criar nó em falta ou ajustar tolerância se justificado.
+    output_geometry: POINT
+  TOPO_002:
+    theme: TOPOLOGIA
+    severity: ALTA
+    description: Nó isolado sem link associado dentro da tolerância
+    suggested_fix: Confirmar se é cadastro abandonado, nó solto ou erro de snap.
+    output_geometry: POINT
+  TOPO_003:
+    theme: TOPOLOGIA
+    severity: CRITICA
+    description: Intersecção de links sem nó de rede
+    suggested_fix: Criar nó na intersecção ou partir linhas conforme regra de cadastro.
+    output_geometry: POINT
+
+water:
+  domain: AGUA
+  prefix: AGUA
+  rules:
+    AGUA_TOPO_001:
+      extends: TOPO_001
+      description: Extremidade de conduta/adutora/ramal de água sem órgão ou nó associado
+    AGUA_TOPO_002:
+      extends: TOPO_002
+      description: Órgão de água isolado sem conduta associada
+    AGUA_ATT_005:
+      extends: ATT_005
+      description: Diâmetro em falta em conduta/adutora/ramal de água
+
+sewer:
+  domain: SANEAMENTO
+  prefix: SAN
+  rules:
+    SAN_TOPO_001:
+      extends: TOPO_001
+      description: Extremidade de colector/conduta elevatória sem câmara ou nó associado
+    SAN_TOPO_002:
+      extends: TOPO_002
+      description: Câmara ou nó de saneamento isolado sem colector associado
+    SAN_ATT_005:
+      extends: ATT_005
+      description: Diâmetro em falta em colector ou conduta elevatória
