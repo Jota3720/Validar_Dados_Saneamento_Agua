@@ -1,17 +1,33 @@
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 
-import pandas as pd
+from src.config_loader import load_yaml
+from src.pipeline import resolve_path
+from src.run_finder import latest_run
+from src.validation_runner import validate_run
 
-from scripts._bootstrap import ROOT
-from src.io import write_csv
 
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Executa apenas validação geométrica sobre a última run ou uma run indicada.")
+    parser.add_argument("--config", default="config/project.yaml")
+    parser.add_argument("--run-dir", default=None)
+    args = parser.parse_args(argv)
 
-def main() -> int:
-    out_dir = Path(ROOT) / "outputs" / "erros"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    write_csv(pd.DataFrame(columns=["regra_id", "source_layer", "source_id", "tipo_erro"]), out_dir / "SAN_GEO_001.csv")
+    cfg = load_yaml(resolve_path(args.config))
+    domain = cfg.get("domain", "SANEAMENTO")
+    run_dir = Path(args.run_dir) if args.run_dir else latest_run(resolve_path(cfg.get("outputs_root", "outputs")), domain.lower())
+    run_id = run_dir.name
+    issues = validate_run(
+        run_dir,
+        domain=domain,
+        run_id=run_id,
+        tolerances_path=resolve_path(cfg.get("tolerances", "config/tolerancias.yaml")),
+        stages={"geometry"},
+    )
+    print(f"Erros geométricos: {len(issues)}")
+    print(f"Run: {run_dir}")
     return 0
 
 
