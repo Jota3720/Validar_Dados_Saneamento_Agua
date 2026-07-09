@@ -1,0 +1,11 @@
+oracle:
+  user: GIA_READONLY
+  password: CHANGE_ME
+  dsn: sigoazem
+  schema: GIA
+  role: read_only
+
+notes:
+  - Copiar este ficheiro para config/database.yaml
+  - Nao versionar credenciais reais
+  - Manter a BD em modo consulta
