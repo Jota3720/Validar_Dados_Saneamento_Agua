@@ -5,6 +5,10 @@ rules_catalog: config/rules_catalog.yaml
 outputs_root: outputs
 domain: AGUA
 code_prefix: AGUA
+extraction:
+  # Usar null para correr sobre todas as entidades.
+  # Para testes iniciais contra Oracle, podes colocar por exemplo 500.
+  row_limit: null
 exports:
   driver: GPKG
   overwrite: true
