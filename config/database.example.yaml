@@ -1,0 +1,18 @@
+oracle:
+  user: GIA_READONLY
+  password: CHANGE_ME
+  # Usar um destes formatos:
+  # dsn: sigoazem
+  # ou host + port + service_name/sid
+  host: sigoazem
+  port: 1521
+  service_name: SIGOAZEM
+  schema: GIA
+  role: read_only
+  sqlplus_path: C:\Oracle\product\19.0.0\client_1\bin\sqlplus.exe
+  config_dir: C:\Oracle\product\19.0.0\client_1\network\admin
+
+notes:
+  - Copiar este ficheiro para config/database.yaml
+  - Nao versionar credenciais reais
+  - Manter a BD em modo consulta

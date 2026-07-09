@@ -1,0 +1,24 @@
+database_config: config/database.yaml
+layers_mapping: config/layers_mapping.yaml
+tolerances: config/tolerancias.yaml
+rules_catalog: config/rules_catalog.yaml
+outputs_root: outputs
+domain: SANEAMENTO
+code_prefix: SAN
+exports:
+  driver: GPKG
+  overwrite: true
+validation:
+  require_projected_crs: true
+  stop_on_crs_error: true
+  active_status_values:
+    - ATIVO
+    - ACTIVO
+    - EM SERVICO
+    - EM SERVIÇO
+  inactive_status_values:
+    - INATIVO
+    - INACTIVO
+    - ABANDONADO
+    - DESATIVADO
+    - DESACTIVADO

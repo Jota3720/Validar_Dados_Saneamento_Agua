@@ -1,0 +1,11 @@
+snap_tolerance_m: 0.05
+near_tolerance_m: 0.20
+isolation_tolerance_m: 0.50
+duplicate_node_tolerance_m: 0.05
+intersection_node_tolerance_m: 0.20
+zero_length_threshold_m: 0.05
+length_difference_percent: 5
+length_difference_min_m: 1.0
+max_reasonable_slope_percent: 30
+min_reasonable_depth_m: 0.30
+max_reasonable_depth_m: 10.0

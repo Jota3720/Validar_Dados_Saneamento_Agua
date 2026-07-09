@@ -1,0 +1,66 @@
+links:
+  adutoras:
+    source: GIA.VATROCOADUTOR
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: LINK
+    note: Adutora
+  tubagens:
+    source: GIA.VATROCOTUBAGEM
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: LINK
+    note: Tubagem de agua
+  ramais:
+    source: GIA.VARAMAL
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: LINK
+    note: Ramal de agua
+
+nodes:
+  valvulas_suspensao:
+    source: GIA.VAVALSUSPENSAO
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: NODE
+    note: Valvula de suspensao
+  reductoras_pressao:
+    source: GIA.VAREDPRESSAO
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: NODE
+    note: Valvula redutora de pressao
+  junta_cega:
+    source: GIA.VAJUNTECEGA
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: NODE
+    note: Junta cega
+  alteracoes:
+    source: GIA.VANOALTERACAO
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: NODE
+    note: Nao alteracao / orgao especial
+  hidrantes:
+    source: GIA.VAHIDRANTE
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: NODE
+    note: Hidrante
+  zmc:
+    source: GIA.VAZMC
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: ZONE
+    note: Zona de medicao e controlo

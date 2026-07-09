@@ -1,0 +1,64 @@
+links:
+  coletores:
+    source: GIA.VETROCOCOLECTORMUN
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: LINK
+    note: Colector municipal
+  emisarios:
+    source: GIA.VETROCOCOLECTOR
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: LINK
+    note: Emissario / colector maior
+  condutas_elevatorias:
+    source: GIA.VETROCOCONDUTAMUN
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: LINK
+    note: Conduta elevatoria
+
+nodes:
+  camaras_normais:
+    source: GIA.VECAMARANORMAL
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: NODE
+    note: Camara de visita / no
+  estacoes_elevatorias:
+    source: GIA.VEESTACAOELEVATORIA
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: NODE
+    note: Estacao elevatoria
+  etar:
+    source: GIA.VEETAR
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: NODE
+    note: ETAR
+
+ramais:
+  ramal_tubagem:
+    source: GIA.VERAMALTUBAGEM
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: RAMAL
+  ramal_camara:
+    source: GIA.VERAMALCAMARA
+    geometry_column: GEOMETRY
+    id_field: IPID
+    include: true
+    model_group: RAMAL
+
+support:
+  bairros:
+    include: false
+    note: Camadas de suporte nao entram na modelacao.

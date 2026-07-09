@@ -1,0 +1,29 @@
+rules:
+  - rule_id: SAN_TOPO_001
+    name: No node touches any link
+    category: Topologia
+    severity: ALTA
+  - rule_id: SAN_TOPO_002
+    name: Node near link but not touching
+    category: Topologia
+    severity: ALTA
+  - rule_id: SAN_TOPO_003
+    name: Isolated node
+    category: Topologia
+    severity: ALTA
+  - rule_id: SAN_TOPO_004
+    name: Link without nearby node
+    category: Topologia
+    severity: CRITICA
+  - rule_id: SAN_TOPO_005
+    name: Link endpoint without node
+    category: Topologia
+    severity: CRITICA
+  - rule_id: SAN_TOPO_006
+    name: Endpoint near node but not coincident
+    category: Topologia
+    severity: ALTA
+  - rule_id: SAN_TOPO_010
+    name: Duplicate or near-duplicate nodes
+    category: Topologia
+    severity: MEDIA

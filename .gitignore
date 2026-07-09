@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+
+# Test/cache artefacts
+.pytest_cache/
+*.log
+
+# Local secrets and machine-specific config
+config/database.yaml
+config/*.local.yaml
+
+# Generated outputs
+outputs/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
