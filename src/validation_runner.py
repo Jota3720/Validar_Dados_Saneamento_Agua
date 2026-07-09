@@ -13,6 +13,13 @@ from src.metadata_rules import validate_location_metadata
 from src.normalization import load_normalized_with_geometry
 from src.topology_rules import validate_nodes_links
 
+try:
+    import geopandas as gpd
+    from shapely import wkt
+except Exception:  # pragma: no cover
+    gpd = None
+    wkt = None
+
 
 def _domain_prefix(domain: str) -> str:
     return "AGUA" if domain.upper() == "AGUA" else "SAN"
@@ -89,6 +96,28 @@ def _summarize(issues: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def _parse_wkt(value):
+    if wkt is None or pd.isna(value) or not str(value).strip():
+        return None
+    try:
+        return wkt.loads(str(value))
+    except Exception:
+        return None
+
+
+def _write_error_gpkg(issues: pd.DataFrame, path: Path) -> None:
+    if issues.empty or gpd is None:
+        return
+    geoms = issues["geometry_wkt"].apply(_parse_wkt)
+    if geoms.isna().all():
+        return
+    gdf = gpd.GeoDataFrame(issues.copy(), geometry=geoms, crs="EPSG:3763")
+    gdf = gdf[gdf.geometry.notna()].copy()
+    if not gdf.empty:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        gdf.to_file(path, layer="validacao_erros", driver="GPKG")
+
+
 def validate_run(
     run_dir: str | Path,
     *,
@@ -159,5 +188,6 @@ def validate_run(
     write_excel(summary, reports_dir / "resumo_erros_por_regra.xlsx")
     write_csv(sample, reports_dir / "amostra_casos_reais.csv")
     write_excel(sample, reports_dir / "amostra_casos_reais.xlsx")
+    _write_error_gpkg(issues, errors_dir / "validacao_erros.gpkg")
 
     return issues
