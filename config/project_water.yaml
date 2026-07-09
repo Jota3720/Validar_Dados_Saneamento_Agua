@@ -1,0 +1,21 @@
+database_config: config/database.yaml
+layers_mapping: config/layers_mapping_water.yaml
+tolerances: config/tolerancias.yaml
+outputs_root: outputs
+exports:
+  driver: GPKG
+  overwrite: true
+validation:
+  require_projected_crs: true
+  stop_on_crs_error: true
+  active_status_values:
+    - ATIVO
+    - ACTIVO
+    - EM SERVICO
+    - EM SERVIÇO
+  inactive_status_values:
+    - INATIVO
+    - INACTIVO
+    - ABANDONADO
+    - DESATIVADO
+    - DESACTIVADO
