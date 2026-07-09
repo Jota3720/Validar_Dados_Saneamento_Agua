@@ -1,7 +1,10 @@
 database_config: config/database.yaml
 layers_mapping: config/layers_mapping.yaml
 tolerances: config/tolerancias.yaml
+rules_catalog: config/rules_catalog.yaml
 outputs_root: outputs
+domain: SANEAMENTO
+code_prefix: SAN
 exports:
   driver: GPKG
   overwrite: true
