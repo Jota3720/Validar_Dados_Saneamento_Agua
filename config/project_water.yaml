@@ -1,7 +1,10 @@
 database_config: config/database.yaml
 layers_mapping: config/layers_mapping_water.yaml
 tolerances: config/tolerancias.yaml
+rules_catalog: config/rules_catalog.yaml
 outputs_root: outputs
+domain: AGUA
+code_prefix: AGUA
 exports:
   driver: GPKG
   overwrite: true
