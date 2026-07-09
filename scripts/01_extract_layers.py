@@ -1,22 +1,26 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
-from scripts._bootstrap import ROOT
+from src.config_loader import load_yaml
+from src.extraction import extract_layers
+from src.pipeline import resolve_path
+from src.run_context import create_run_context
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", required=True)
-    parser.add_argument("--database-config", required=True)
-    args = parser.parse_args()
-    out_dir = Path(ROOT) / "outputs" / "exports"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "san_links.csv").write_text("source_layer,source_id,geometry_wkt\n", encoding="utf-8")
-    (out_dir / "san_nodes.csv").write_text("source_layer,source_id,geometry_wkt\n", encoding="utf-8")
-    (out_dir / "san_ramais.csv").write_text("source_layer,source_id,geometry_wkt\n", encoding="utf-8")
-    (out_dir / "san_zones.csv").write_text("source_layer,source_id,geometry_wkt\n", encoding="utf-8")
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Extrai layers Oracle em modo read-only para CSV local.")
+    parser.add_argument("--config", default="config/project.yaml")
+    args = parser.parse_args(argv)
+
+    config_path = resolve_path(args.config)
+    cfg = load_yaml(config_path)
+    domain = cfg.get("domain", "SANEAMENTO")
+    outputs_root = resolve_path(cfg.get("outputs_root", "outputs"))
+    ctx = create_run_context(outputs_root, domain)
+    summary = extract_layers(config_path, ctx.root)
+    print(f"Run criada em: {ctx.root}")
+    print(summary.to_string(index=False))
     return 0
 
 
