@@ -1,9 +1,11 @@
-# Python
+﻿# Python
 __pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
 .venv/
+.venv_isolated/
 venv/
 .env
 

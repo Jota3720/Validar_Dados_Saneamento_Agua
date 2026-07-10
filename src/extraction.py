@@ -6,6 +6,7 @@ from typing import Any
 
 import pandas as pd
 
+from src.oracle_extract import diagnose_wkt_text
 from src.config_loader import load_yaml
 from src.io import write_csv, write_excel
 from src.layer_mapping import load_layer_entries
@@ -132,6 +133,10 @@ def extract_layers(project_config_path: str | Path, run_dir: str | Path) -> pd.D
                     where=where,
                 )
                 df = pd.read_sql(sql, conn)
+                if "geometry_wkt" in df.columns:
+                    audits = pd.DataFrame([diagnose_wkt_text(value) for value in df["geometry_wkt"].tolist()])
+                    audits = audits.drop(columns=["geometry"], errors="ignore")
+                    df = pd.concat([df, audits], axis=1)
                 df.columns = [str(c).lower() for c in df.columns]
                 df["_mapping_group"] = entry["group"]
                 df["_mapping_alias"] = alias

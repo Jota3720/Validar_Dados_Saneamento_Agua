@@ -10,7 +10,7 @@ def normalize_links(layers: dict[str, gpd.GeoDataFrame], mapping: dict) -> gpd.G
     frames = []
     for layer_name, gdf in layers.items():
         cfg = mapping[layer_name]
-        out = gpd.GeoDataFrame(geometry=gdf.geometry, crs=gdf.crs)
+        out = gdf.copy()
         out["source_layer"] = layer_name
         out["source_id"] = _field(gdf, cfg.get("id_field"))
         out["entity_type"] = cfg.get("entity_type", layer_name)
@@ -53,7 +53,7 @@ def normalize_nodes(layers: dict[str, gpd.GeoDataFrame], mapping: dict) -> gpd.G
     frames = []
     for layer_name, gdf in layers.items():
         cfg = mapping[layer_name]
-        out = gpd.GeoDataFrame(geometry=gdf.geometry, crs=gdf.crs)
+        out = gdf.copy()
         out["source_layer"] = layer_name
         out["source_id"] = _field(gdf, cfg.get("id_field"))
         out["entity_type"] = cfg.get("entity_type", layer_name)

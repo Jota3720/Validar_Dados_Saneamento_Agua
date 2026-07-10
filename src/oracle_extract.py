@@ -61,6 +61,16 @@ COMMON_FIELD_CANDIDATES = [
     "NOME",
 ]
 
+SUPPORTED_GEOMETRY_TYPES = {
+    "Point",
+    "LineString",
+    "Polygon",
+    "MultiPoint",
+    "MultiLineString",
+    "MultiPolygon",
+    "GeometryCollection",
+}
+
 
 def extract_layer_gdf(conn, owner: str, table_name: str, geom_col: str, cfg: dict[str, Any]) -> gpd.GeoDataFrame:
     owner = owner.upper().strip()
@@ -83,7 +93,9 @@ def extract_layer_gdf(conn, owner: str, table_name: str, geom_col: str, cfg: dic
     if "WKT_GEOM" not in df.columns:
         raise RuntimeError(f"Extracao sem coluna WKT para {owner}.{table_name}")
 
-    geometry = df["WKT_GEOM"].apply(_safe_wkt)
+    audits = pd.DataFrame([diagnose_wkt_text(value) for value in df["WKT_GEOM"].tolist()])
+    geometry = audits.pop("geometry")
+    df = pd.concat([df, audits], axis=1)
     drop_cols = {"WKT_GEOM", geom_col}
     for col in list(df.columns):
         if str(col).upper().startswith("SDO_GEOMETRY("):
@@ -178,3 +190,64 @@ def _safe_wkt(value):
         return wkt.loads(text)
     except Exception:
         return None
+
+
+def diagnose_wkt_text(value: Any) -> dict[str, Any]:
+    text = _normalize_wkt_text(value)
+    text_length = len(text)
+    if not text:
+        return {
+            "geometry": None,
+            "source_wkt_length": 0,
+            "extracted_wkt_length": 0,
+            "geometry_parse_ok": False,
+            "geometry_type": None,
+            "geometry_is_valid": False,
+            "diagnostic_reason": "NULL_GEOMETRY",
+            "parse_error": None,
+            "wkt_original": None,
+        }
+    try:
+        geom = wkt.loads(text)
+    except Exception as exc:
+        return {
+            "geometry": None,
+            "source_wkt_length": text_length,
+            "extracted_wkt_length": text_length,
+            "geometry_parse_ok": False,
+            "geometry_type": None,
+            "geometry_is_valid": False,
+            "diagnostic_reason": "WKT_TRUNCATED" if text_length >= 32767 else "WKT_PARSE_FAILED",
+            "parse_error": str(exc),
+            "wkt_original": text,
+        }
+
+    geom_type = getattr(geom, "geom_type", None)
+    is_valid = bool(getattr(geom, "is_valid", False))
+    if getattr(geom, "is_empty", False):
+        reason = "NULL_GEOMETRY"
+    elif geom_type not in SUPPORTED_GEOMETRY_TYPES:
+        reason = "UNSUPPORTED_GEOMETRY"
+    elif not is_valid:
+        reason = "INVALID_GEOMETRY"
+    else:
+        reason = "OK"
+    return {
+        "geometry": geom,
+        "source_wkt_length": text_length,
+        "extracted_wkt_length": text_length,
+        "geometry_parse_ok": True,
+        "geometry_type": geom_type,
+        "geometry_is_valid": is_valid,
+        "diagnostic_reason": reason,
+        "parse_error": None,
+        "wkt_original": text,
+    }
+
+
+def _normalize_wkt_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if pd.isna(value):
+        return ""
+    return str(value).strip()

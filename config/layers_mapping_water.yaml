@@ -37,7 +37,7 @@ nodes:
     model_group: NODE
     note: Valvula redutora de pressao
   junta_cega:
-    source: GIA.VAJUNTECEGA
+    source: GIA.VAJUNTACEGA
     geometry_column: GEOMETRY
     id_field: IPID
     include: true

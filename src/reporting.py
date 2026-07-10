@@ -151,6 +151,90 @@ def write_report_tables(df: pd.DataFrame, out_dir: str | Path) -> None:
     write_excel(df, out / "resumo_erros_por_regra.xlsx")
 
 
+def write_extraction_integrity_report(
+    frames: dict[str, gpd.GeoDataFrame],
+    outputs_root: str | Path = "outputs",
+    report_stem: str = "diagnostico_integridade_extracao",
+) -> None:
+    paths = ensure_output_dirs(outputs_root)
+    summary_rows: list[dict[str, object]] = []
+    detail_rows: list[dict[str, object]] = []
+
+    for dataset_name, gdf in frames.items():
+        df = pd.DataFrame(gdf.drop(columns="geometry", errors="ignore")).copy()
+        if df.empty:
+            summary_rows.append(
+                {
+                    "dataset": dataset_name,
+                    "layer": dataset_name,
+                    "rows": 0,
+                    "with_wkt": 0,
+                    "parse_ok": 0,
+                    "parse_failed": 0,
+                    "null_geometry": 0,
+                    "invalid_geometry": 0,
+                    "unsupported_geometry": 0,
+                    "truncated_wkt": 0,
+                }
+            )
+            continue
+
+        layer_values = df["source_layer"] if "source_layer" in df.columns else pd.Series([dataset_name] * len(df), index=df.index)
+        if "diagnostic_reason" not in df.columns:
+            df["diagnostic_reason"] = "OK"
+        if "geometry_parse_ok" not in df.columns:
+            df["geometry_parse_ok"] = True
+        if "geometry_is_valid" not in df.columns:
+            df["geometry_is_valid"] = True
+
+        grouped = df.groupby(layer_values, dropna=False)
+        for layer_name, subset in grouped:
+            reason = subset["diagnostic_reason"].fillna("OK").astype(str)
+            length_series = pd.to_numeric(
+                subset["extracted_wkt_length"], errors="coerce"
+            ) if "extracted_wkt_length" in subset.columns else pd.Series([0] * len(subset), index=subset.index)
+            summary_rows.append(
+                {
+                    "dataset": dataset_name,
+                    "layer": layer_name,
+                    "rows": int(len(subset)),
+                    "with_wkt": int((length_series.fillna(0) > 0).sum()) if len(subset) else 0,
+                    "parse_ok": int((subset["geometry_parse_ok"] == True).sum()),  # noqa: E712
+                    "parse_failed": int(reason.isin(["WKT_PARSE_FAILED", "WKT_TRUNCATED"]).sum()),
+                    "null_geometry": int(reason.eq("NULL_GEOMETRY").sum()),
+                    "invalid_geometry": int(reason.eq("INVALID_GEOMETRY").sum()),
+                    "unsupported_geometry": int(reason.eq("UNSUPPORTED_GEOMETRY").sum()),
+                    "truncated_wkt": int(reason.eq("WKT_TRUNCATED").sum()),
+                }
+            )
+
+            failed = subset.loc[reason.ne("OK")].copy()
+            if not failed.empty:
+                for _, row in failed.iterrows():
+                    detail_rows.append(
+                        {
+                            "dataset": dataset_name,
+                            "layer": layer_name,
+                            "source_id": row.get("source_id"),
+                            "source_wkt_length": row.get("source_wkt_length"),
+                            "extracted_wkt_length": row.get("extracted_wkt_length"),
+                            "geometry_parse_ok": row.get("geometry_parse_ok"),
+                            "geometry_type": row.get("geometry_type"),
+                            "geometry_is_valid": row.get("geometry_is_valid"),
+                            "diagnostic_reason": row.get("diagnostic_reason"),
+                            "parse_error": row.get("parse_error"),
+                            "wkt_original": row.get("wkt_original"),
+                        }
+                    )
+
+    summary = pd.DataFrame(summary_rows)
+    details = pd.DataFrame(detail_rows)
+    write_csv(summary, paths["reports"] / f"{report_stem}.csv")
+    with pd.ExcelWriter(paths["reports"] / f"{report_stem}.xlsx", engine="openpyxl") as writer:
+        summary.to_excel(writer, sheet_name="Resumo", index=False)
+        details.to_excel(writer, sheet_name="Falhas", index=False)
+
+
 def _safe_wkt(value):
     if value is None or (isinstance(value, float) and pd.isna(value)):
         return None
